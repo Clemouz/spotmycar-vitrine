@@ -116,6 +116,25 @@
             animation: spin 8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Dropdown transition */
+        .dropdown-menu {
+            transition: all 0.2s ease-in-out;
+            transform-origin: top right;
+        }
+        .dropdown-menu.hidden {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+            pointer-events: none;
+            display: block; /* keep block to apply transition, visibility handled by opacity/pointer-events */
+            visibility: hidden;
+        }
+        .dropdown-menu.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+            visibility: visible;
+        }
     </style>
 </head>
 <body class="font-sans bg-light text-midnight antialiased overflow-x-hidden">
@@ -131,12 +150,35 @@
             </a>
 
             <div class="hidden md:flex items-center gap-8">
-                <a href="#fonctionnalites" class="text-gray-200 hover:text-signal text-sm font-medium transition-colors focus:outline-none focus:text-signal">Fonctionnalités</a>
-                <a href="#process" class="text-gray-200 hover:text-signal text-sm font-medium transition-colors focus:outline-none focus:text-signal">Processus</a>
+                <a href="#fonctionnalites" class="text-gray-200 hover:text-signal text-sm font-medium transition-colors focus:outline-none focus:text-signal" data-i18n="nav.features">Fonctionnalités</a>
+                <a href="#process" class="text-gray-200 hover:text-signal text-sm font-medium transition-colors focus:outline-none focus:text-signal" data-i18n="nav.process">Processus</a>
+                
+                <!-- Language Switcher Desktop (Dropdown) -->
+                <div class="relative ml-4 border-l border-white/10 pl-6" id="lang-switcher-desktop">
+                    <button id="lang-btn-desktop" class="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white transition-colors focus:outline-none group">
+                        <i class="fa-solid fa-globe text-signal/80 group-hover:text-signal"></i>
+                        <span class="uppercase" id="current-lang-label">FR</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 group-hover:text-white transition-transform duration-200" id="lang-chevron"></i>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div id="lang-menu" class="dropdown-menu hidden absolute top-full right-0 mt-4 w-40 bg-midnightLight border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+                        <div class="py-1">
+                            <button onclick="switchLanguage('fr')" class="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-white/5 hover:text-signal transition-colors flex items-center justify-between group lang-option" data-lang="fr">
+                                <span class="font-medium">Français</span>
+                                <i class="fa-solid fa-check text-signal text-xs opacity-0 transition-opacity"></i>
+                            </button>
+                            <button onclick="switchLanguage('en')" class="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-white/5 hover:text-signal transition-colors flex items-center justify-between group lang-option" data-lang="en">
+                                <span class="font-medium">English</span>
+                                <i class="fa-solid fa-check text-signal text-xs opacity-0 transition-opacity"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="hidden md:block">
-                <a href="#waitlist" class="px-5 py-2.5 bg-signal hover:bg-signalHover text-midnight font-bold text-sm rounded-md transition-all shadow-[0_0_15px_rgba(0,230,118,0.3)] hover:shadow-[0_0_25px_rgba(0,230,118,0.5)]">
+                <a href="#waitlist" class="px-5 py-2.5 bg-signal hover:bg-signalHover text-midnight font-bold text-sm rounded-md transition-all shadow-[0_0_15px_rgba(0,230,118,0.3)] hover:shadow-[0_0_25px_rgba(0,230,118,0.5)]" data-i18n="nav.cta">
                     Rejoindre la liste d'attente
                 </a>
             </div>
@@ -148,9 +190,30 @@
         
         <div class="md:hidden hidden bg-midnight border-b border-white/10 absolute w-full" id="mobile-menu">
             <div class="px-6 py-6 flex flex-col gap-6 shadow-xl">
-                <a href="#fonctionnalites" class="text-white text-lg font-medium hover:text-signal">Fonctionnalités</a>
-                <a href="#process" class="text-white text-lg font-medium hover:text-signal">Notre Process</a>
-                <a href="#waitlist" class="text-signal font-bold text-lg">S'inscrire (Bêta)</a>
+                <a href="#fonctionnalites" class="text-white text-lg font-medium hover:text-signal" data-i18n="nav.features">Fonctionnalités</a>
+                <a href="#process" class="text-white text-lg font-medium hover:text-signal" data-i18n="nav.process">Notre Process</a>
+                <a href="#waitlist" class="text-signal font-bold text-lg" data-i18n="nav.cta_mobile">S'inscrire (Bêta)</a>
+                
+                <!-- Language Switcher Mobile (Dropdown Style) -->
+                <div class="pt-6 border-t border-white/10">
+                    <button id="lang-btn-mobile" class="flex items-center justify-between w-full text-white font-medium mb-2">
+                        <span class="text-slate-400">Langue / Language</span>
+                        <div class="flex items-center gap-2">
+                            <span class="uppercase text-signal" id="current-lang-label-mobile">FR</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform duration-200" id="lang-chevron-mobile"></i>
+                        </div>
+                    </button>
+                    <div id="lang-menu-mobile" class="hidden flex-col gap-2 pl-4 border-l-2 border-white/5 mt-2 transition-all">
+                        <button onclick="switchLanguage('fr')" class="text-left text-sm text-slate-300 py-2 hover:text-signal active:text-signal flex items-center justify-between w-full lang-option-mobile" data-lang="fr">
+                            Français
+                            <i class="fa-solid fa-check text-signal text-xs opacity-0"></i>
+                        </button>
+                        <button onclick="switchLanguage('en')" class="text-left text-sm text-slate-300 py-2 hover:text-signal active:text-signal flex items-center justify-between w-full lang-option-mobile" data-lang="en">
+                            English
+                            <i class="fa-solid fa-check text-signal text-xs opacity-0"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -169,28 +232,28 @@
                 <div class="lg:w-1/2 text-center lg:text-left">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-signal text-xs font-bold uppercase tracking-wider mb-6">
                         <span class="w-2 h-2 rounded-full bg-signal animate-pulse"></span>
-                        Lancement imminent
+                        <span data-i18n="hero.badge">Lancement imminent</span>
                     </div>
                     
-                    <h1 class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6">
+                    <h1 class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6" data-i18n="hero.title">
                         Le sourcing automobile <br>
                         <span class="text-gradient">bientôt automatisé.</span>
                     </h1>
                     
                     <!-- PUNCHLINE -->
-                    <p class="text-lightSlate text-lg mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0 font-light">
+                    <p class="text-lightSlate text-lg mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0 font-light" data-i18n="hero.desc">
                         SpotMyCar centralise les annonces de véhicules d'occasion de dizaines de plateformes, filtre et analyse leur rentabilité pour ne vous garder que les <strong>meilleures</strong> annonces.
                         <span class="block mt-2 italic text-signal">"Détectez l'opportunité. Maximisez la marge."</span>
                     </p>
                     
                     <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
                         <a href="#waitlist" class="w-full sm:w-auto px-8 py-4 bg-signal text-midnight font-bold rounded-lg hover:bg-signalHover transition-all shadow-[0_0_20px_rgba(0,230,118,0.4)] flex items-center justify-center gap-2 text-base">
-                            <span>Accès anticipé</span>
+                            <span data-i18n="hero.cta_access">Accès anticipé</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </a>
                         <a href="#process" class="w-full sm:w-auto px-8 py-4 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 border border-white/20 transition-all flex items-center justify-center gap-2 text-base backdrop-blur-sm">
                             <i class="fa-solid fa-microchip text-signal"></i>
-                            Comment ça marche ?
+                            <span data-i18n="hero.cta_how">Comment ça marche ?</span>
                         </a>
                     </div>
                 </div>
@@ -207,15 +270,15 @@
                         <!-- Header du Graphique -->
                         <div class="px-6 py-4 border-b border-slate-600 flex justify-between items-center bg-midnight/50 rounded-t-2xl">
                             <div>
-                                <h3 class="text-white font-bold tracking-wide text-sm md:text-base font-display">Analyse de Marché</h3>
-                                <p class="text-lightSlate text-[10px] md:text-xs font-sans mt-0.5">Renault Clio V (Comparatif)</p>
+                                <h3 class="text-white font-bold tracking-wide text-sm md:text-base font-display" data-i18n="chart.title">Analyse de marché</h3>
+                                <p class="text-lightSlate text-[10px] md:text-xs font-sans mt-0.5" data-i18n="chart.subtitle">Renault Clio V (comparatif)</p>
                             </div>
                             <div class="flex items-center gap-2 bg-signal/10 px-2 py-1 rounded border border-signal/20">
                                 <span class="flex h-1.5 w-1.5 relative">
                                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-signal"></span>
                                 </span>
-                                <span class="text-signal text-[10px] font-bold font-sans tracking-wide uppercase">Opportunité</span>
+                                <span class="text-signal text-[10px] font-bold font-sans tracking-wide uppercase" data-i18n="chart.opportunity">Opportunité</span>
                             </div>
                         </div>
                 
@@ -283,7 +346,7 @@
                                         <!-- Petite flèche tooltip -->
                                         <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 border-b border-r border-signal/50 rotate-45"></div>
 
-                                        <div class="text-[10px] text-slate-300 font-sans mb-1 uppercase tracking-wider font-bold">Marge Potentielle</div>
+                                        <div class="text-[10px] text-slate-300 font-sans mb-1 uppercase tracking-wider font-bold" data-i18n="chart.margin_label">Marge Potentielle</div>
                                         <div class="text-xl font-bold text-white font-display leading-none flex items-center gap-2">
                                             +1 850€ <i class="fa-solid fa-arrow-trend-up text-signal text-sm"></i>
                                         </div>
@@ -303,12 +366,12 @@
                         <!-- Footer / Résumé -->
                         <div class="bg-slate-800/40 px-6 py-4 flex justify-between items-center border-t border-slate-600 backdrop-blur-md rounded-b-2xl">
                             <div class="flex flex-col">
-                                <span class="text-lightSlate text-[10px] font-sans uppercase tracking-wide">Cote estimée</span>
+                                <span class="text-lightSlate text-[10px] font-sans uppercase tracking-wide" data-i18n="chart.estimated">Cote estimée</span>
                                 <span class="text-white font-bold font-display text-sm md:text-base">14 200 €</span>
                             </div>
                             <div class="h-8 w-px bg-white/10 mx-2"></div>
                             <div class="flex flex-col text-right">
-                                <span class="text-lightSlate text-[10px] font-sans uppercase tracking-wide">Prix détecté</span>
+                                <span class="text-lightSlate text-[10px] font-sans uppercase tracking-wide" data-i18n="chart.detected">Prix détecté</span>
                                 <span class="text-signal font-bold font-display text-sm md:text-base">12 350 €</span>
                             </div>
                         </div>
@@ -353,8 +416,8 @@
     <section id="fonctionnalites" class="py-24 bg-light">
         <div class="container mx-auto px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="font-display font-bold text-3xl md:text-4xl text-midnight mb-4">Un outil taillé pour la rentabilité</h2>
-                <p class="text-slate-600 text-lg">SpotMyCar n'est pas un simple agrégateur. C'est un analyste virtuel pointu qui travaille pour vous.</p>
+                <h2 class="font-display font-bold text-3xl md:text-4xl text-midnight mb-4" data-i18n="features.title">Un outil taillé pour la rentabilité</h2>
+                <p class="text-slate-600 text-lg" data-i18n="features.subtitle">SpotMyCar n'est pas un simple agrégateur. C'est un analyste virtuel pointu qui travaille pour vous.</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8">
@@ -363,8 +426,8 @@
                     <div class="w-14 h-14 bg-midnight rounded-xl flex items-center justify-center mb-6 group-hover:bg-signal transition-colors duration-300">
                         <i class="fa-solid fa-satellite-dish text-signal text-2xl group-hover:text-midnight transition-colors duration-300"></i>
                     </div>
-                    <h3 class="font-display font-bold text-xl text-midnight mb-3">Multi-sourcing</h3>
-                    <p class="text-slate-600 text-base leading-relaxed">
+                    <h3 class="font-display font-bold text-xl text-midnight mb-3" data-i18n="feature1.title">Multi-sourcing</h3>
+                    <p class="text-slate-600 text-base leading-relaxed" data-i18n="feature1.desc">
                         Surveillez les annonces des plus grandes plateformes. Pour ne manquer aucune opportunité.
                     </p>
                 </div>
@@ -374,8 +437,8 @@
                     <div class="w-14 h-14 bg-midnight rounded-xl flex items-center justify-center mb-6 group-hover:bg-signal transition-colors duration-300">
                         <i class="fa-solid fa-brain text-signal text-2xl group-hover:text-midnight transition-colors duration-300"></i>
                     </div>
-                    <h3 class="font-display font-bold text-xl text-midnight mb-3">Algorithmes & IA</h3>
-                    <p class="text-slate-600 text-base leading-relaxed">
+                    <h3 class="font-display font-bold text-xl text-midnight mb-3" data-i18n="feature2.title">Algorithmes & IA</h3>
+                    <p class="text-slate-600 text-base leading-relaxed" data-i18n="feature2.desc">
                         Déterminez la "vraie" valeur des véhicules et votre marge potentielle instantanément, sans effort manuel.
                     </p>
                 </div>
@@ -385,8 +448,8 @@
                     <div class="w-14 h-14 bg-midnight rounded-xl flex items-center justify-center mb-6 group-hover:bg-signal transition-colors duration-300">
                         <i class="fa-solid fa-bolt text-signal text-2xl group-hover:text-midnight transition-colors duration-300"></i>
                     </div>
-                    <h3 class="font-display font-bold text-xl text-midnight mb-3">Alertes rentabilité</h3>
-                    <p class="text-slate-600 text-base leading-relaxed">
+                    <h3 class="font-display font-bold text-xl text-midnight mb-3" data-i18n="feature3.title">Alertes rentabilité</h3>
+                    <p class="text-slate-600 text-base leading-relaxed" data-i18n="feature3.desc">
                         Fini le scrolling infini. Recevez une notification push uniquement si le véhicule dépasse vos critères de rentabilité.
                     </p>
                 </div>
@@ -398,9 +461,9 @@
     <section id="process" class="py-24 bg-midnight relative overflow-hidden border-t border-white/5">
         <div class="container mx-auto px-6 relative z-10">
             <div class="text-center mb-16">
-                <div class="inline-block bg-white/5 border border-white/10 text-white text-xs font-bold px-3 py-1 rounded-full mb-4">PROCESSUS</div>
-                <h2 class="font-display font-bold text-3xl md:text-4xl text-white">Une machinerie invisible</h2>
-                <p class="text-lightSlate mt-4 text-lg">Cliquez sur les étapes pour dévoiler le fonctionnement.</p>
+                <div class="inline-block bg-white/5 border border-white/10 text-white text-xs font-bold px-3 py-1 rounded-full mb-4" data-i18n="process.badge">PROCESSUS</div>
+                <h2 class="font-display font-bold text-3xl md:text-4xl text-white" data-i18n="process.title">Une machinerie invisible</h2>
+                <p class="text-lightSlate mt-4 text-lg" data-i18n="process.subtitle">Cliquez sur les étapes pour dévoiler le fonctionnement.</p>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-12 items-start">
@@ -410,24 +473,24 @@
                     <button class="process-tab active flex items-center gap-4 p-6 rounded-xl bg-midnightLight border border-white/10 hover:border-signal/50 transition-all text-left group w-full" data-target="step1">
                         <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold group-[.active]:bg-signal group-[.active]:text-midnight transition-colors flex-shrink-0">1</div>
                         <div>
-                            <h4 class="text-white font-bold text-lg group-[.active]:text-signal transition-colors">Récolte Massive</h4>
-                            <p class="text-lightSlate/80 text-sm mt-1">Multi-sources en temps réel</p>
+                            <h4 class="text-white font-bold text-lg group-[.active]:text-signal transition-colors" data-i18n="tab1.title">Récolte massive</h4>
+                            <p class="text-lightSlate/80 text-sm mt-1" data-i18n="tab1.desc">Multi-sources en temps réel</p>
                         </div>
                     </button>
 
                     <button class="process-tab flex items-center gap-4 p-6 rounded-xl bg-midnightLight border border-white/10 hover:border-signal/50 transition-all text-left group w-full" data-target="step2">
                         <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold group-[.active]:bg-signal group-[.active]:text-midnight transition-colors flex-shrink-0">2</div>
                         <div>
-                            <h4 class="text-white font-bold text-lg group-[.active]:text-signal transition-colors">Analyse IA</h4>
-                            <p class="text-lightSlate/80 text-sm mt-1">Filtrage et calcul de marge</p>
+                            <h4 class="text-white font-bold text-lg group-[.active]:text-signal transition-colors" data-i18n="tab2.title">Analyse IA</h4>
+                            <p class="text-lightSlate/80 text-sm mt-1" data-i18n="tab2.desc">Filtrage et calcul de marge</p>
                         </div>
                     </button>
 
                     <button class="process-tab flex items-center gap-4 p-6 rounded-xl bg-midnightLight border border-white/10 hover:border-signal/50 transition-all text-left group w-full" data-target="step3">
                         <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white font-bold group-[.active]:bg-signal group-[.active]:text-midnight transition-colors flex-shrink-0">3</div>
                         <div>
-                            <h4 class="text-white font-bold text-lg group-[.active]:text-signal transition-colors">Affichage & Action</h4>
-                            <p class="text-lightSlate/80 text-sm mt-1">Alerte instantanée</p>
+                            <h4 class="text-white font-bold text-lg group-[.active]:text-signal transition-colors" data-i18n="tab3.title">Affichage & Action</h4>
+                            <p class="text-lightSlate/80 text-sm mt-1" data-i18n="tab3.desc">Alerte instantanée</p>
                         </div>
                     </button>
                 </div>
@@ -437,7 +500,7 @@
                     
                     <!-- Schéma 1: Récolte -->
                     <div id="step1" class="schema-content active flex flex-col items-center justify-center w-full">
-                        <h3 class="text-signal font-bold mb-8 uppercase tracking-widest text-sm">Architecture de Collecte</h3>
+                        <h3 class="text-signal font-bold mb-8 uppercase tracking-widest text-sm" data-i18n="schema1.title">Architecture de Collecte</h3>
                         <div class="flex items-center justify-center gap-4 md:gap-8 w-full mb-8">
                             <!-- Sources -->
                             <div class="flex flex-col gap-4 items-center">
@@ -461,12 +524,12 @@
                                 <div class="absolute inset-0 rounded-full border-4 border-t-signal border-r-transparent border-b-transparent border-l-transparent animate-spin-slow"></div>
                             </div>
                         </div>
-                        <p class="text-lightSlate/80 text-center max-w-md">Nos agents veillent en continu les flux de plusieurs plateformes.</p>
+                        <p class="text-lightSlate/80 text-center max-w-md" data-i18n="schema1.desc">Nos agents veillent en continu les flux de plusieurs plateformes.</p>
                     </div>
 
                     <!-- Schéma 2: Analyse -->
                     <div id="step2" class="schema-content flex flex-col items-center justify-center w-full">
-                        <h3 class="text-signal font-bold mb-8 uppercase tracking-widest text-sm">Traitement Intelligent</h3>
+                        <h3 class="text-signal font-bold mb-8 uppercase tracking-widest text-sm" data-i18n="schema2.title">Traitement Intelligent</h3>
                         <div class="flex items-center justify-center gap-8 w-full mb-8">
                             <!-- Input Data -->
                             <div class="w-16 h-16 bg-slate-700 rounded-lg flex flex-col items-center justify-center gap-1 border border-white/10">
@@ -497,12 +560,12 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-lightSlate/80 text-center max-w-md">L'algorithme écarte 95% des annonces non rentables. Seules les opportunités réelles passent le filtre.</p>
+                        <p class="text-lightSlate/80 text-center max-w-md" data-i18n="schema2.desc">L'algorithme écarte 95% des annonces non rentables. Seules les opportunités réelles passent le filtre.</p>
                     </div>
 
                     <!-- Schéma 3: Action -->
                     <div id="step3" class="schema-content flex flex-col items-center justify-center w-full">
-                        <h3 class="text-signal font-bold mb-8 uppercase tracking-widest text-sm">Distribution Instantanée</h3>
+                        <h3 class="text-signal font-bold mb-8 uppercase tracking-widest text-sm" data-i18n="schema3.title">Distribution Instantanée</h3>
                         <div class="flex items-center justify-center gap-8 w-full mb-8 relative">
                             <!-- Signal Wave -->
                             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -531,7 +594,7 @@
                                 <div class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-midnight animate-bounce">1</div>
                             </div>
                         </div>
-                        <p class="text-lightSlate/80 text-center max-w-md">L'information arrive sur votre mobile ou dashboard. Vous êtes le premier à appeler le vendeur.</p>
+                        <p class="text-lightSlate/80 text-center max-w-md" data-i18n="schema3.desc">L'information arrive sur votre mobile ou dashboard. Vous êtes le premier à appeler le vendeur.</p>
                     </div>
 
                 </div>
@@ -548,9 +611,9 @@
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
 
                 <div class="relative z-10">
-                    <div class="inline-block bg-signal/20 text-signal border border-signal/30 text-xs font-bold px-3 py-1 rounded-full mb-4">PLACES LIMITÉES</div>
-                    <h2 class="font-display font-bold text-3xl md:text-4xl text-white mb-6">Soyez les premiers prévenus</h2>
-                    <p class="text-lightSlate text-lg mb-10 max-w-2xl mx-auto">
+                    <div class="inline-block bg-signal/20 text-signal border border-signal/30 text-xs font-bold px-3 py-1 rounded-full mb-4" data-i18n="waitlist.badge">PLACES LIMITÉES</div>
+                    <h2 class="font-display font-bold text-3xl md:text-4xl text-white mb-6" data-i18n="waitlist.title">Soyez les premiers prévenus</h2>
+                    <p class="text-lightSlate text-lg mb-10 max-w-2xl mx-auto" data-i18n="waitlist.desc">
                         Nous finalisons le développement. Inscrivez-vous pour être prioritaire lors du lancement officiel et bénéficier d'un tarif préférentiel à vie.
                     </p>
                     
@@ -567,15 +630,16 @@
                             placeholder="Votre email pro" 
                             class="px-6 py-4 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:border-signal focus:ring-1 focus:ring-signal w-full text-base" 
                             aria-label="Email professionnel"
+                            data-i18n-placeholder="waitlist.placeholder"
                         >
                         <!-- Honeypot -->
                         <input type="text" name="_gotcha" style="display:none">
 
-                        <button type="submit" class="px-8 py-4 bg-signal hover:bg-signalHover text-midnight font-bold rounded-lg transition-all shadow-lg hover:shadow-xl whitespace-nowrap text-base">
+                        <button type="submit" class="px-8 py-4 bg-signal hover:bg-signalHover text-midnight font-bold rounded-lg transition-all shadow-lg hover:shadow-xl whitespace-nowrap text-base" data-i18n="waitlist.btn">
                             M'inscrire
                         </button>
                     </form>
-                    <p class="mt-6 text-slate-500 text-sm font-medium">Vous serez notifié dès l'ouverture des accès. 0 spam.</p>
+                    <p class="mt-6 text-slate-500 text-sm font-medium" data-i18n="waitlist.spam">Vous serez notifié dès l'ouverture des accès. 0 spam.</p>
                 </div>
             </div>
         </div>
@@ -589,7 +653,7 @@
                     <i class="fa-solid fa-crosshairs text-signal text-lg"></i>
                     <span class="font-display font-bold text-xl text-white">Spot<span class="text-signal">MyCar</span></span>
                 </div>
-                <div class="text-slate-500 text-sm text-center md:text-left">
+                <div class="text-slate-500 text-sm text-center md:text-left" data-i18n="footer.copyright">
                     &copy; 2025 SpotMyCar Solutions.
                 </div>
                 <div class="flex gap-6">
@@ -602,6 +666,265 @@
 
     <script src="./assets/js/main.js" defer></script>
     <script>
+        // --- TRANSLATIONS CONFIGURATION ---
+        const translations = {
+            fr: {
+                nav: {
+                    features: "Fonctionnalités",
+                    process: "Processus",
+                    cta: "Rejoindre la liste d'attente",
+                    cta_mobile: "S'inscrire (Bêta)"
+                },
+                hero: {
+                    badge: "Lancement imminent",
+                    title: `Le sourcing automobile <br><span class="text-gradient">bientôt automatisé.</span>`,
+                    desc: `SpotMyCar centralise les annonces de véhicules d'occasion de dizaines de plateformes, filtre et analyse leur rentabilité pour ne vous garder que les <strong>meilleures</strong> annonces.<span class="block mt-2 italic text-signal">"Détectez l'opportunité. Maximisez la marge."</span>`,
+                    cta_access: "Accès anticipé",
+                    cta_how: "Comment ça marche ?"
+                },
+                chart: {
+                    title: "Analyse de marché",
+                    subtitle: "Renault Clio V (comparatif)",
+                    opportunity: "Opportunité",
+                    margin_label: "Marge Potentielle",
+                    estimated: "Cote estimée",
+                    detected: "Prix détecté"
+                },
+                features: {
+                    title: "Un outil taillé pour la rentabilité",
+                    subtitle: "SpotMyCar n'est pas un simple agrégateur. C'est un analyste virtuel pointu qui travaille pour vous."
+                },
+                feature1: {
+                    title: "Multi-sourcing",
+                    desc: "Surveillez les annonces des plus grandes plateformes. Pour ne manquer aucune opportunité."
+                },
+                feature2: {
+                    title: "Algorithmes & IA",
+                    desc: "Déterminez la \"vraie\" valeur des véhicules et votre marge potentielle instantanément, sans effort manuel."
+                },
+                feature3: {
+                    title: "Alertes rentabilité",
+                    desc: "Fini le scrolling infini. Recevez une notification push uniquement si le véhicule dépasse vos critères de rentabilité."
+                },
+                process: {
+                    badge: "PROCESSUS",
+                    title: "Une machinerie invisible",
+                    subtitle: "Cliquez sur les étapes pour dévoiler le fonctionnement."
+                },
+                tab1: { title: "Récolte massive", desc: "Multi-sources en temps réel" },
+                tab2: { title: "Analyse IA", desc: "Filtrage et calcul de marge" },
+                tab3: { title: "Affichage & action", desc: "Alerte instantanée" },
+                schema1: {
+                    title: "Architecture de Collecte",
+                    desc: "Nos agents veillent en continu les flux de nombreuses plateformes."
+                },
+                schema2: {
+                    title: "Traitement Intelligent",
+                    desc: "L'algorithme écarte les annonces non rentables. Seules les opportunités réelles passent le filtre."
+                },
+                schema3: {
+                    title: "Distribution Instantanée",
+                    desc: "La notification arrive sur votre mobile ou votre ordinateur. Vous êtes le premier à appeler le vendeur."
+                },
+                waitlist: {
+                    badge: "PLACES LIMITÉES",
+                    title: "Soyez les premiers prévenus",
+                    desc: "Nous finalisons le développement. Inscrivez-vous pour être prioritaire lors du lancement officiel et bénéficier d'un tarif préférentiel à vie.",
+                    placeholder: "Votre email pro",
+                    btn: "M'inscrire",
+                    spam: "Vous serez notifié dès l'ouverture des accès. 0 spam."
+                },
+                footer: {
+                    copyright: "&copy; 2025 SpotMyCar Solutions."
+                }
+            },
+            en: {
+                nav: {
+                    features: "Features",
+                    process: "Process",
+                    cta: "Join the waitlist",
+                    cta_mobile: "Sign up (beta)"
+                },
+                hero: {
+                    badge: "Launching soon",
+                    title: `Automated car sourcing <br><span class="text-gradient">coming soon.</span>`,
+                    desc: `SpotMyCar centralizes used car listings from dozens of platforms, filters and analyzes their profitability to keep only the <strong>best</strong> deals for you.<span class="block mt-2 italic text-signal">"Spot the opportunity. Maximize the margin."</span>`,
+                    cta_access: "Early access",
+                    cta_how: "How it works?"
+                },
+                chart: {
+                    title: "Market analysis",
+                    subtitle: "Renault Clio V (comparison)",
+                    opportunity: "Opportunity",
+                    margin_label: "Potential Margin",
+                    estimated: "Estimated Value",
+                    detected: "Detected Price"
+                },
+                features: {
+                    title: "A tool built for profitability",
+                    subtitle: "SpotMyCar is not just an aggregator. It is a sharp virtual analyst working for you."
+                },
+                feature1: {
+                    title: "Multi-sourcing",
+                    desc: "Monitor listings from the biggest platforms. Never miss an opportunity."
+                },
+                feature2: {
+                    title: "Algorithms & AI",
+                    desc: "Determine the \"true\" value of vehicles and your potential margin instantly, without manual effort."
+                },
+                feature3: {
+                    title: "Profitability alerts",
+                    desc: "No more infinite scrolling. Get a push notification only if the vehicle exceeds your profitability criteria."
+                },
+                process: {
+                    badge: "PROCESS",
+                    title: "Invisible machinery",
+                    subtitle: "Click on the steps to reveal how it works."
+                },
+                tab1: { title: "Massive harvesting", desc: "Real-time multi-source" },
+                tab2: { title: "AI Analysis", desc: "Filtering and margin calculation" },
+                tab3: { title: "Display & action", desc: "Instant alert" },
+                schema1: {
+                    title: "Collection Architecture",
+                    desc: "Our agents continuously monitor streams from multiple platforms."
+                },
+                schema2: {
+                    title: "Intelligent Processing",
+                    desc: "The algorithm discards unprofitable listings. Only real opportunities pass the filter."
+                },
+                schema3: {
+                    title: "Instant Distribution",
+                    desc: "Notification arrives on your mobile or computer. You are the first to call the seller."
+                },
+                waitlist: {
+                    badge: "LIMITED SPOTS",
+                    title: "Be the first to know",
+                    desc: "We are finalizing development. Sign up to get priority access at launch and a lifetime preferential rate.",
+                    placeholder: "Your professional email",
+                    btn: "Sign up",
+                    spam: "You'll be notified as soon as access opens. 0 spam."
+                },
+                footer: {
+                    copyright: "&copy; 2025 SpotMyCar Solutions."
+                }
+            }
+        };
+
+        // --- LANGUAGE SWITCHER LOGIC ---
+        let currentLang = 'fr';
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+
+            // Update all elements with data-i18n attribute
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const translation = getNestedTranslation(translations[lang], key);
+                if (translation) {
+                    el.innerHTML = translation;
+                }
+            });
+
+            // Update inputs with placeholders
+            const inputs = document.querySelectorAll('[data-i18n-placeholder]');
+            inputs.forEach(input => {
+                const key = input.getAttribute('data-i18n-placeholder');
+                const translation = getNestedTranslation(translations[lang], key);
+                if (translation) {
+                    input.placeholder = translation;
+                }
+            });
+
+            // Update Dropdown UI (Desktop)
+            const desktopLabel = document.getElementById('current-lang-label');
+            if(desktopLabel) desktopLabel.textContent = lang.toUpperCase();
+            
+            document.querySelectorAll('.lang-option').forEach(btn => {
+                const checkIcon = btn.querySelector('i');
+                if(btn.dataset.lang === lang) {
+                    btn.classList.add('text-signal', 'bg-white/5');
+                    btn.classList.remove('text-slate-300');
+                    if(checkIcon) checkIcon.classList.remove('opacity-0');
+                } else {
+                    btn.classList.remove('text-signal', 'bg-white/5');
+                    btn.classList.add('text-slate-300');
+                    if(checkIcon) checkIcon.classList.add('opacity-0');
+                }
+            });
+
+            // Update UI (Mobile)
+            const mobileLabel = document.getElementById('current-lang-label-mobile');
+            if(mobileLabel) mobileLabel.textContent = lang.toUpperCase();
+
+            document.querySelectorAll('.lang-option-mobile').forEach(btn => {
+                const checkIcon = btn.querySelector('i');
+                if(btn.dataset.lang === lang) {
+                    btn.classList.add('text-signal');
+                    btn.classList.remove('text-slate-300');
+                    if(checkIcon) checkIcon.classList.remove('opacity-0');
+                } else {
+                    btn.classList.remove('text-signal');
+                    btn.classList.add('text-slate-300');
+                    if(checkIcon) checkIcon.classList.add('opacity-0');
+                }
+            });
+
+            // Close dropdowns
+            toggleDropdown(false);
+        }
+
+        // Helper to access nested objects via string "nav.features"
+        function getNestedTranslation(obj, path) {
+            return path.split('.').reduce((prev, curr) => {
+                return prev ? prev[curr] : null;
+            }, obj);
+        }
+
+        // Dropdown Toggle Logic
+        function toggleDropdown(show) {
+            const menu = document.getElementById('lang-menu');
+            const chevron = document.getElementById('lang-chevron');
+            
+            if (show === undefined) {
+                // Toggle
+                const isHidden = menu.classList.contains('hidden');
+                toggleDropdown(isHidden);
+                return;
+            }
+
+            if (show) {
+                menu.classList.remove('hidden');
+                // Small timeout to allow display:block to apply before opacity transition
+                setTimeout(() => {
+                    menu.classList.add('visible');
+                    chevron.style.transform = 'rotate(180deg)';
+                }, 10);
+            } else {
+                menu.classList.remove('visible');
+                chevron.style.transform = 'rotate(0deg)';
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 200); // Match transition duration
+            }
+        }
+
+        function toggleMobileLangMenu() {
+            const menu = document.getElementById('lang-menu-mobile');
+            const chevron = document.getElementById('lang-chevron-mobile');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Mobile Menu Toggle
             const btn = document.getElementById('mobile-menu-btn');
@@ -612,6 +935,33 @@
                     menu.classList.toggle('hidden');
                 });
             }
+
+            // Desktop Language Dropdown Toggle
+            const langBtnDesktop = document.getElementById('lang-btn-desktop');
+            if (langBtnDesktop) {
+                langBtnDesktop.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleDropdown();
+                });
+            }
+
+            // Mobile Language Menu Toggle
+            const langBtnMobile = document.getElementById('lang-btn-mobile');
+            if (langBtnMobile) {
+                langBtnMobile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMobileLangMenu();
+                });
+            }
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('lang-menu');
+                const btn = document.getElementById('lang-btn-desktop');
+                if (menu && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    toggleDropdown(false);
+                }
+            });
 
             // Tabs Logic (Process Section)
             const tabs = document.querySelectorAll('.process-tab');
@@ -635,6 +985,9 @@
                     }
                 });
             });
+            
+            // Initialize with default language state visual update
+            switchLanguage('fr');
         });
     </script>
 </body>
