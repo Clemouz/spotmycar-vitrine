@@ -177,10 +177,13 @@
                 </div>
             </div>
 
-            <div class="hidden md:block">
-                <a href="#waitlist" class="px-5 py-2.5 bg-signal hover:bg-signalHover text-midnight font-bold text-sm rounded-md transition-all shadow-[0_0_15px_rgba(0,230,118,0.3)] hover:shadow-[0_0_25px_rgba(0,230,118,0.5)]" data-i18n="nav.cta">
-                    Rejoindre la liste d'attente
-                </a>
+            <div class="hidden md:flex items-center gap-3">
+                <button onclick="openAuthModal('register')" class="px-4 py-2.5 text-signal hover:text-white text-sm font-medium transition-colors">
+                    S'inscrire
+                </button>
+                <button onclick="openAuthModal('login')" class="px-5 py-2.5 bg-signal hover:bg-signalHover text-midnight font-bold text-sm rounded-md transition-all shadow-[0_0_15px_rgba(0,230,118,0.3)] hover:shadow-[0_0_25px_rgba(0,230,118,0.5)]">
+                    Se connecter
+                </button>
             </div>
 
             <button class="md:hidden text-white text-2xl p-2 focus:outline-none" id="mobile-menu-btn" aria-label="Menu">
@@ -987,6 +990,185 @@
             // Initialize with default language state visual update
             switchLanguage('fr');
         });
+    </script>
+
+    <!-- ===== AUTH MODAL ===== -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+        <div onclick="closeAuthModal()" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-md mx-4 bg-[#112240] border border-white/10 rounded-2xl shadow-2xl p-8 z-10">
+
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <!-- Logo -->
+            <div class="flex items-center gap-2 mb-6">
+                <div class="w-8 h-8 bg-[#00E676] rounded-lg flex items-center justify-center text-[#0A192F]">
+                    <i class="fa-solid fa-crosshairs text-sm"></i>
+                </div>
+                <span class="font-bold text-xl text-white tracking-tight">Spot<span class="text-[#00E676]">MyCar</span></span>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-1 bg-white/5 rounded-lg p-1 mb-6">
+                <button id="tab-login" onclick="switchAuthTab('login')"
+                    class="flex-1 py-2 rounded-md text-sm font-semibold transition-all bg-[#00E676] text-[#0A192F]">
+                    Connexion
+                </button>
+                <button id="tab-register" onclick="switchAuthTab('register')"
+                    class="flex-1 py-2 rounded-md text-sm font-semibold transition-all text-slate-400 hover:text-white">
+                    Inscription
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="auth-error"   class="hidden mb-4 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm"></div>
+            <div id="auth-success" class="hidden mb-4 px-4 py-3 bg-[#00E676]/10 border border-[#00E676]/30 rounded-lg text-[#00E676] text-sm"></div>
+
+            <!-- Bouton Google (commun aux deux onglets) -->
+            <button type="button" onclick="handleGoogleAuth()"
+                class="w-full py-3 bg-white hover:bg-gray-100 text-gray-800 font-semibold rounded-lg transition-all text-sm flex items-center justify-center gap-3 mb-5">
+                <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continuer avec Google
+            </button>
+
+            <!-- Séparateur -->
+            <div class="flex items-center gap-3 mb-5">
+                <div class="flex-1 h-px bg-white/10"></div>
+                <span class="text-slate-500 text-xs">ou</span>
+                <div class="flex-1 h-px bg-white/10"></div>
+            </div>
+
+            <!-- Login form -->
+            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Email</label>
+                    <input id="login-email" type="email" required placeholder="vous@exemple.com"
+                        class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E676] transition-colors text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Mot de passe</label>
+                    <input id="login-password" type="password" required placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;"
+                        class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E676] transition-colors text-sm">
+                </div>
+                <button type="submit" id="login-btn"
+                    class="w-full py-3 bg-[#00E676] hover:bg-[#00C853] text-[#0A192F] font-bold rounded-lg transition-all text-sm">
+                    Se connecter &rarr;
+                </button>
+            </form>
+
+            <!-- Register form -->
+            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Email</label>
+                    <input id="register-email" type="email" required placeholder="vous@exemple.com"
+                        class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E676] transition-colors text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Mot de passe</label>
+                    <input id="register-password" type="password" required placeholder="8 caract&#232;res minimum"
+                        class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-[#00E676] transition-colors text-sm">
+                </div>
+                <button type="submit" id="register-btn"
+                    class="w-full py-3 bg-[#00E676] hover:bg-[#00C853] text-[#0A192F] font-bold rounded-lg transition-all text-sm">
+                    Cr&#233;er mon compte &rarr;
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        (function() {
+            var sb = supabase.createClient(
+                'https://lrlskgxzrkjotcxevzag.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybHNrZ3h6cmtqb3RjeGV2emFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NzA3NjEsImV4cCI6MjA5MDA0Njc2MX0.IUPPMuth6KH1wtyqEohsfjHFqomLGth-lwJu5dc'
+            );
+            var APP_URL = 'https://spotmycar.pages.dev';
+
+            window.openAuthModal = function(tab) {
+                document.getElementById('auth-modal').classList.remove('hidden');
+                switchAuthTab(tab || 'login');
+                clearAuthMessages();
+            };
+
+            window.closeAuthModal = function() {
+                document.getElementById('auth-modal').classList.add('hidden');
+                clearAuthMessages();
+            };
+
+            window.switchAuthTab = function(tab) {
+                var isLogin = tab === 'login';
+                document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+                document.getElementById('form-register').classList.toggle('hidden', isLogin);
+                document.getElementById('tab-login').className    = 'flex-1 py-2 rounded-md text-sm font-semibold transition-all ' + (isLogin  ? 'bg-[#00E676] text-[#0A192F]' : 'text-slate-400 hover:text-white');
+                document.getElementById('tab-register').className = 'flex-1 py-2 rounded-md text-sm font-semibold transition-all ' + (!isLogin ? 'bg-[#00E676] text-[#0A192F]' : 'text-slate-400 hover:text-white');
+                clearAuthMessages();
+            };
+
+            function clearAuthMessages() {
+                document.getElementById('auth-error').classList.add('hidden');
+                document.getElementById('auth-success').classList.add('hidden');
+            }
+            function showAuthError(msg)   { var e = document.getElementById('auth-error');   e.textContent = msg; e.classList.remove('hidden'); }
+            function showAuthSuccess(msg) { var e = document.getElementById('auth-success'); e.textContent = msg; e.classList.remove('hidden'); }
+
+            // Google OAuth
+            window.handleGoogleAuth = async function() {
+                var result = await sb.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo: APP_URL }
+                });
+                if (result.error) showAuthError('Erreur Google : ' + result.error.message);
+            };
+
+            // Email / password login
+            window.handleLogin = async function(e) {
+                e.preventDefault();
+                clearAuthMessages();
+                var btn = document.getElementById('login-btn');
+                btn.textContent = 'Connexion...'; btn.disabled = true;
+                var result = await sb.auth.signInWithPassword({
+                    email:    document.getElementById('login-email').value,
+                    password: document.getElementById('login-password').value
+                });
+                if (result.error) {
+                    showAuthError('Email ou mot de passe incorrect.');
+                    btn.textContent = 'Se connecter →'; btn.disabled = false;
+                } else {
+                    showAuthSuccess('Connexion réussie ! Redirection...');
+                    setTimeout(function() { window.location.href = APP_URL; }, 1200);
+                }
+            };
+
+            // Email / password register
+            window.handleRegister = async function(e) {
+                e.preventDefault();
+                clearAuthMessages();
+                var btn = document.getElementById('register-btn');
+                btn.textContent = 'Création...'; btn.disabled = true;
+                var result = await sb.auth.signUp({
+                    email:    document.getElementById('register-email').value,
+                    password: document.getElementById('register-password').value
+                });
+                if (result.error) {
+                    showAuthError(result.error.message);
+                } else {
+                    showAuthSuccess('Compte créé ! Vérifie ta boîte mail pour confirmer, puis connecte-toi.');
+                    document.getElementById('form-register').reset();
+                }
+                btn.textContent = 'Créer mon compte →'; btn.disabled = false;
+            };
+
+            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') window.closeAuthModal(); });
+        })();
     </script>
 </body>
 </html>
