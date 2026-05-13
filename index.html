@@ -1143,8 +1143,12 @@
                     showAuthError('Email ou mot de passe incorrect.');
                     btn.textContent = 'Se connecter →'; btn.disabled = false;
                 } else {
-                    showAuthSuccess('Connexion réussie ! Redirection...');
-                    setTimeout(function() { window.location.href = APP_URL; }, 1200);
+                    showAuthSuccess('Connexion réussie ! Redirection...');
+                    var token = result.data.session.access_token;
+                    var refresh = result.data.session.refresh_token;
+                    setTimeout(function() {
+                        window.location.href = APP_URL + '#access_token=' + token + '&refresh_token=' + refresh + '&type=recovery';
+                    }, 1200);
                 }
             };
 
